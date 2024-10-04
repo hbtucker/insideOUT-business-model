@@ -15,6 +15,7 @@
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
+            transition: background-color 0.3s ease;
         }
         #chart {
             width: 100%;
@@ -40,19 +41,35 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 100px;
+            width: 70px;
             height: auto;
             z-index: 1000;
+        }
+        #darkModeToggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        body.dark-mode {
+            background-color: #202020;
         }
     </style>
 </head>
 <body>
     <div id="chart">
         <img id="logo" src="logo.png" alt="Logo">
+        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <script>
         const data = {
-            name: "Build Better Businesses for Humans",
+            name: "Better Businesses for Humans",
             children: [
                 {
                     name: "Value Proposition",
@@ -101,12 +118,31 @@
         const height = width;
         const radius = width / 2;
 
-        const richerColors = [
-            "#c7522a", "#e5c185", "#f1d5bf", "#74a892", "#008585",
-            "#809bce", "#95b8d1", "#b8e0d4", "#d6eadf",
+        let richerColors = [
+            "#c7522a", 
+            "#e5c185",
+            "#f1d5bf",
+            "#74a892", 
+            "#008585", 
+            "#809bce", 
+            "#95b8d1", 
+            "#b8e0d4", 
+            "#d6eadf",
         ];
 
-        const color = d3.scaleOrdinal()
+        let darkerColors = [
+            "#8B3A1E",
+            "#A18860",
+            "#A99585",
+            "#517666",
+            "#005D5D",
+            "#5A6D90",
+            "#688092",
+            "#809D95",
+            "#96A39C",
+        ];
+
+        let color = d3.scaleOrdinal()
             .domain(data.children.map(d => d.name))
             .range(richerColors);
 
@@ -165,7 +201,7 @@
         path.filter(d => d.children)
             .style('cursor', 'pointer')
             .on('click', clicked);
-        
+
         path.filter(d => !d.children)
             .style('cursor', 'pointer')
             .on('click', (event, d) => {
@@ -270,7 +306,20 @@
             .attr('r', radius)
             .attr('fill', 'none')
             .attr('pointer-events', 'all')
-            .on('click', clicked);
+            .on('click', clicked)
+            .on('mouseover', function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html("Click to zoom out")
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 1) + "px");
+            })
+            .on('mouseout', function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
 
         function wrapCenterText(text, width) {
             let words = text.text().split(/\s+/).reverse(),
@@ -338,7 +387,39 @@
 
             centerLabel.text(p.depth ? p.data.name : data.name);
             updateCenterLabel();
+
+            // Apply correct text color after updating
+            updateColors();
         }
+
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const logo = document.getElementById('logo');
+
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            updateColors();
+        });
+
+        function updateColors() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? 'white' : 'black';
+            
+            if (isDarkMode) {
+                color.range(darkerColors);
+                logo.src = 'dark-logo.png';
+            } else {
+                color.range(richerColors);
+                logo.src = 'logo.png';
+            }
+
+            path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
+            d3.selectAll('.slice-label').attr('fill', textColor);
+            centerLabel.attr('fill', textColor);
+        }
+
+        // Initial color update
+        updateColors();
 
         function handleResize() {
             const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
