@@ -66,7 +66,7 @@
 <body>
     <div id="chart">
         <img id="logo" src="logo.png" alt="Logo">
-        <button id="darkModeToggle">Switch to Dark Mode</button>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <script>
         const data = {
@@ -413,34 +413,41 @@
             updateColors();
         }
 
-        // Dark mode toggle functionality
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const logo = document.getElementById('logo');
+// Dark mode toggle functionality
+const darkModeToggle = document.getElementById('darkModeToggle');
+const logo = document.getElementById('logo');
 
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            updateColors();
-        });
+function updateToggleText() {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+}
 
-        function updateColors() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const textColor = isDarkMode ? 'white' : 'black';
-            
-            if (isDarkMode) {
-                color.range(darkerColors);
-                logo.src = 'dark-logo.png';
-            } else {
-                color.range(richerColors);
-                logo.src = 'logo.png';
-            }
+darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    updateColors();
+    updateToggleText();
+});
 
-            path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
-            d3.selectAll('.slice-label').attr('fill', textColor);
-            centerLabel.attr('fill', textColor);
-        }
+function updateColors() {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const textColor = isDarkMode ? 'white' : 'black';
+    
+    if (isDarkMode) {
+        color.range(darkerColors);
+        logo.src = 'dark-logo.png';
+    } else {
+        color.range(richerColors);
+        logo.src = 'logo.png';
+    }
 
-        // Initial color update
-        updateColors();
+    path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
+    d3.selectAll('.slice-label').attr('fill', textColor);
+    centerLabel.attr('fill', textColor);
+}
+
+// Initial color and text update
+    updateColors();
+    updateToggleText();
     </script>
 </body>
 </html>
