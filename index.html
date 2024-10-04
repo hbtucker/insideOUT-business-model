@@ -173,7 +173,7 @@
                     .duration(200)
                     .attr('transform', function(d) {
                         const [x, y] = arc.centroid(d.current);
-                        const scale = d.current.y0 === 0 ? 1 : 1.04;
+                        const scale = d.current.y0 === 0 ? 1 : 1.03;
                         return `scale(${scale}) translate(${x * 0.01},${y * 0.01})`;
                     })
                     .attr('fill-opacity', 1);
