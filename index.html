@@ -419,27 +419,26 @@ let radius = width / 13;
 //    const newHeight = newWidth;
 //    const newRadius = newWidth / 13;
 
-    svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
+//    svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
-    arc.innerRadius(d => d.y0 * newRadius)
-       .outerRadius(d => Math.max(d.y0 * newRadius, d.y1 * newRadius - 1));
+//    arc.innerRadius(d => d.y0 * newRadius)
+//       .outerRadius(d => Math.max(d.y0 * newRadius, d.y1 * newRadius - 1));
 
-    path.attr('d', d => arc(d.current));
+//    path.attr('d', d => arc(d.current));
 
-    label.attr('transform', d => labelTransform(d.current))
-         .style('font-size', d => `${calculateFontSize(d)}px`)
-         .each(function(d) {
-             const lines = insertLineBreaks(d.data.name);
-             d3.select(this).selectAll('tspan')
-                 .data(lines)
-                 .join('tspan')
-                 .attr('x', 0)
-                 .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
-                 .text(d => d);
-         });
+//    label.attr('transform', d => labelTransform(d.current))
+//         .style('font-size', d => `${calculateFontSize(d)}px`)
+//         .each(function(d) {
+//             const lines = insertLineBreaks(d.data.name);
+ //            d3.select(this).selectAll('tspan')
+  //               .data(lines)
+   //              .join('tspan')
+  //               .attr('x', 0)
+    //             .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
+   //              .text(d => d);
+ //        });
 
-    parent.attr('r', newRadius);
-}
+///    parent.attr('r', newRadius);
 
         window.addEventListener('resize', resizeChart);
     </script>
