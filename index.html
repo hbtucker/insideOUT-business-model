@@ -27,7 +27,7 @@
         }
         .slice-label {
             pointer-events: none;
-            font-size: 8px;
+            font-size: 7px;
         }
         #logo {
             position: absolute;
@@ -108,9 +108,35 @@
 
         const width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
         const height = width;
-        const radius = width / 12;
+        const radius = width / 8;
 
-        const color = d3.scaleOrdinal(d3.schemeCategory10);
+                let richerColors = [
+            "#c7522a", 
+            "#e5c185",
+            "#f1d5bf",
+            "#74a892", 
+            "#008585", 
+            "#809bce", 
+            "#95b8d1", 
+            "#b8e0d4", 
+            "#d6eadf",
+        ];
+
+        let darkerColors = [
+            "#8B3A1E",
+            "#A18860",
+            "#A99585",
+            "#517666",
+            "#005D5D",
+            "#5A6D90",
+            "#688092",
+            "#809D95",
+            "#96A39C",
+        ];
+
+            let color = d3.scaleOrdinal()
+            .domain(data.children.map(d => d.name))
+            .range(richerColors);
 
         const partition = data => {
             const root = d3.hierarchy(data)
@@ -134,7 +160,7 @@
         const svg = d3.select('#chart')
             .append('svg')
             .attr('viewBox', [0, 0, width, height])
-            .style('font', '10px sans-serif');
+            .style('font', '7px sans-serif');
 
         const g = svg.append('g')
             .attr('transform', `translate(${width / 2},${height / 2})`);
@@ -221,9 +247,17 @@
         }
 
         const darkModeToggle = document.getElementById('darkModeToggle');
+        let isDarkMode = false;
+
+        function updateDarkModeToggle() {
+            darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+        }
+
         darkModeToggle.addEventListener('click', () => {
-            const isDarkMode = document.body.classList.toggle('dark-mode');
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
             updateColors(isDarkMode);
+            updateDarkModeToggle();
         });
 
         window.addEventListener('resize', () => {
