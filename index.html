@@ -53,7 +53,7 @@
     </div>
     <script>
         const data = {
-            name: "Build Better Businesses for Humans",
+            name: "Building Better Businesses for Humans",
             children: [
                 {
                     name: "Value Proposition",
@@ -175,7 +175,7 @@
         path.filter(d => d.children)
             .style('cursor', 'pointer')
             .on('click', clicked);
-        
+
         path.filter(d => !d.children)
             .style('cursor', 'pointer')
             .on('click', (event, d) => {
@@ -275,14 +275,12 @@
                 let word;
                 let line = [];
                 let lineNumber = 0;
-                const lineHeight = 1.1; // Consistent line height
+                const lineHeight = 1.0;
+                const lineHeight = 1.0;
                 const y = text.attr("y");
-                const x = text.attr("x");
                 const dy = parseFloat(text.attr("dy"));
-                text.text(null);
+                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
 
-                let tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-                
                 while (word = words.pop()) {
                     line.push(word);
                     tspan.text(line.join(" "));
@@ -290,25 +288,15 @@
                         line.pop();
                         tspan.text(line.join(" "));
                         line = [word];
-                        tspan = text.append("tspan")
-                            .attr("x", x)
-                            .attr("y", y)
-                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                            .text(word);
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
                     }
                 }
-
-                // Center the text vertically
-                const height = (lineNumber + 1) * lineHeight;
-                const offset = -height / 2 + dy;
-                text.selectAll("tspan")
-                    .attr("y", y)
-                    .attr("dy", (d, i) => `${offset + i * lineHeight + dy}em`);
             });
         }
 
         const centerLabel = g.append('text')
             .attr('text-anchor', 'middle')
+            .attr('dy', '0.5em')
             .attr('dy', '0.35em')
             .attr('font-size', '14px')
             .attr('pointer-events', 'none')
