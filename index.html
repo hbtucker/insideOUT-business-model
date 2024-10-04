@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Model Template</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -142,6 +143,25 @@
             .style('cursor', 'pointer')
             .on('click', clicked);
 
+        // Add hover animation
+        path.on('mouseover', function() {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('transform', function(d) {
+                    const centroid = arc.centroid(d.current);
+                    return `translate(${centroid[0] * 0.05},${centroid[1] * 0.05})`;
+                })
+                .attr('fill-opacity', 1);
+        })
+        .on('mouseout', function() {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('transform', 'translate(0,0)')
+                .attr('fill-opacity', d => d.children ? 0.6 : 0.4);
+        });
+
         const format = d3.format(',d');
         path.append('title')
             .text(d => `${d.ancestors().map(d => d.data.name).reverse().join('/')}\n${format(d.value)}`);
@@ -157,6 +177,7 @@
             .attr('dy', '0.35em')
             .attr('fill-opacity', d => +labelVisible(d.current))
             .attr('transform', d => labelTransform(d.current))
+            .text(d => d.data.name)
             .each(function(d) {
                 const node = d3.select(this);
                 const words = d.data.name.split(/\s+/);
@@ -165,7 +186,7 @@
                 const lineHeight = 1.1;
                 const y = 0;
                 const x = 0;
-                let tspan = node.append('tspan').attr('x', x).attr('y', y);
+                let tspan = node.text(null).append('tspan').attr('x', x).attr('y', y);
                 words.forEach(word => {
                     line.push(word);
                     tspan.text(line.join(' '));
@@ -253,7 +274,9 @@
         function labelTransform(d) {
             const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
             const y = (d.y0 + d.y1) / 2 * radius;
-            return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+            const rotation = x - 90;
+            const translate = `translate(${y},0)`;
+            return `rotate(${rotation}) ${translate} rotate(${-rotation})`;
         }
     </script>
 </body>
