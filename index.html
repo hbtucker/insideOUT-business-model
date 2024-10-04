@@ -34,7 +34,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 5px;
-            font-size: 12px;
+            font-size: 8px;
             pointer-events: none;
         }
         #logo {
@@ -196,7 +196,7 @@ function calculateFontSize(d) {
     const r = (node.y0 + node.y1) / 2 * radius;
     const perimeter = r * angle;
     const maxFontSize = Math.min(15, perimeter / 5);
-    const minFontSize = 4;
+    const minFontSize = 2;
     return Math.max(minFontSize, maxFontSize);
 }
 
