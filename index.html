@@ -34,7 +34,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 5px;
-            font-size: 8px;
+            font-size: 10px;
             pointer-events: none;
         }
         #logo {
@@ -118,7 +118,7 @@
 
     let width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
     let height = width;
-    let radius = width / 10;
+    let radius = width / 12;
 
         let richerColors = [
             "#c7522a", 
@@ -195,8 +195,8 @@ function calculateFontSize(d) {
     const angle = node.x1 - node.x0;
     const r = (node.y0 + node.y1) / 2 * radius;
     const perimeter = r * angle;
-    const maxFontSize = Math.min(15, perimeter / 5);
-    const minFontSize = 2;
+    const maxFontSize = Math.min(12, perimeter / 5);
+    const minFontSize = 1;
     return Math.max(minFontSize, maxFontSize);
 }
 
@@ -416,7 +416,7 @@ function calculateFontSize(d) {
 function resizeChart() {
     const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
     const newHeight = newWidth;
-    const newRadius = newWidth / 10;
+    const newRadius = newWidth / 12;
 
     svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
