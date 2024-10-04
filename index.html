@@ -46,39 +46,27 @@
             height: auto;
             z-index: 1000;
         }
-    #darkModeToggle {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 1000;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 50%;
-        transition: background-color 0.3s ease;
-}
-    #darkModeToggle:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-}
-    #darkModeToggle svg {
-        width: 24px;
-        height: 24px;
-        transition: fill 0.3s ease;
-    }
-    body.dark-mode #darkModeToggle svg {
-        fill: white;
-}
+        #darkModeToggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        body.dark-mode {
+            background-color: #202020;
+        }
     </style>
 </head>
 <body>
     <div id="chart">
         <img id="logo" src="logo.png" alt="Logo">
-        <button id="darkModeToggle" aria-label="Toggle dark mode">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21.53 15.93c-.16-.27-.61-.69-1.73-.49a8.46 8.46 0 01-1.88.13 8.409 8.409 0 01-5.91-2.82 8.068 8.068 0 01-1.44-8.66c.44-1.01.13-1.54-.09-1.76s-.77-.55-1.83-.11a10.318 10.318 0 00-6.32 10.21 10.475 10.475 0 007.04 8.99 10 10 0 002.89.55c.16.01.32.02.48.02a10.5 10.5 0 008.47-4.27c.67-.93.49-1.519.32-1.79z"/>
-            </svg>
-        </button>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <script>
         const data = {
@@ -422,15 +410,14 @@
                 .call(wrapCenterText, radius * 1.5);
 
             // Apply correct text color after updating
-            updateTextColor();
+            updateColors();
         }
 
         // Dark mode toggle functionality
         const darkModeToggle = document.getElementById('darkModeToggle');
-        let isDarkMode = false;
+        const logo = document.getElementById('logo');
 
         darkModeToggle.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark-mode');
             updateColors();
         });
@@ -448,31 +435,12 @@
             }
 
             path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
-            updateTextColor();
-        }
-
-        function updateTextColor() {
-            const textColor = isDarkMode ? 'white' : 'black';
             d3.selectAll('.slice-label').attr('fill', textColor);
             centerLabel.attr('fill', textColor);
         }
 
-        // Initial text color update
-        updateTextColor();
-
-        // Observe changes to the body class to detect dark mode changes
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    updateTextColor();
-                }
-            });
-        });
-
-        observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
+        // Initial color update
+        updateColors();
     </script>
 </body>
 </html>
