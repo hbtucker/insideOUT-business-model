@@ -15,6 +15,7 @@
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
+            transition: background-color 0.3s ease;
         }
         #chart {
             width: 100%;
@@ -45,11 +46,27 @@
             height: auto;
             z-index: 1000;
         }
+        #darkModeToggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        body.dark-mode {
+            background-color: #202020;
+        }
     </style>
 </head>
 <body>
     <div id="chart">
         <img id="logo" src="logo.png" alt="Logo">
+        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <script>
         const data = {
@@ -102,7 +119,7 @@
         const height = width;
         const radius = width / 8;
 
-        const richerColors = [
+        let richerColors = [
             "#c7522a", 
             "#e5c185",
             "#f1d5bf",
@@ -114,7 +131,19 @@
             "#d6eadf",
         ];
 
-        const color = d3.scaleOrdinal()
+        let darkerColors = [
+            "#8B3A1E",
+            "#A18860",
+            "#A99585",
+            "#517666",
+            "#005D5D",
+            "#5A6D90",
+            "#688092",
+            "#809D95",
+            "#96A39C",
+        ];
+
+        let color = d3.scaleOrdinal()
             .domain(data.children.map(d => d.name))
             .range(richerColors);
 
@@ -379,7 +408,54 @@
 
             centerLabel.text(p.depth ? p.data.name : data.name)
                 .call(wrapCenterText, radius * 1.5);
+
+            // Apply correct text color after updating
+            updateTextColor();
         }
+
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        let isDarkMode = false;
+
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            updateColors();
+        });
+
+        function updateColors() {
+            if (isDarkMode) {
+                color.range(darkerColors);
+            } else {
+                color.range(richerColors);
+            }
+
+            path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
+            updateTextColor();
+        }
+
+        function updateTextColor() {
+            const textColor = isDarkMode ? 'white' : 'black';
+            d3.selectAll('.slice-label').attr('fill', textColor);
+            centerLabel.attr('fill', textColor);
+        }
+
+        // Initial text color update
+        updateTextColor();
+
+        // Observe changes to the body class to detect dark mode changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateTextColor();
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
     </script>
 </body>
 </html>
