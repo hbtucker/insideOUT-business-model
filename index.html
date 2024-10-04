@@ -339,7 +339,7 @@ function clicked(event, p) {
 
     // Update the paths
     path = g.selectAll('path')
-        .data(root.descendants().slice(1), d => d.data.name)
+        .data(root.descendants().slice(1), d => d.data.name + d.depth)
         .join(
             enter => enter.append('path')
                 .attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
@@ -350,6 +350,10 @@ function clicked(event, p) {
         );
 
     path.transition(t)
+        .tween('data', d => {
+            const i = d3.interpolate(d.current, d.target);
+            return t => d.current = i(t);
+        })
         .attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
         .attrTween('d', d => () => arc(d.current))
         .attr('fill-opacity', d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
@@ -372,7 +376,7 @@ function clicked(event, p) {
 
     // Update the labels
     label = g.selectAll('text')
-        .data(root.descendants().slice(1), d => d.data.name)
+        .data(root.descendants().slice(1), d => d.data.name + d.depth)
         .join(
             enter => enter.append('text')
                 .attr('class', 'slice-label')
