@@ -268,12 +268,38 @@
                     .style("opacity", 0);
             });
 
+        function wrapCenterText(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1;
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy"));
+                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width || word.length > 12) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+
         const centerLabel = g.append('text')
             .attr('text-anchor', 'middle')
-            .attr('dy', '0.35em')
+            .attr('dy', '0.5em')
             .attr('font-size', '14px')
             .attr('pointer-events', 'none')
-            .text(data.name);
+            .text(data.name)
+            .call(wrapCenterText, radius * 1.5);
 
         function clicked(event, p) {
             parent.datum(p.parent || root);
@@ -351,7 +377,8 @@
                     });
                 });
 
-            centerLabel.text(p.depth ? p.data.name : data.name);
+            centerLabel.text(p.depth ? p.data.name : data.name)
+                .call(wrapCenterText, radius * 1.5);
         }
     </script>
 </body>
