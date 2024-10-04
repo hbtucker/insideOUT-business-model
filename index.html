@@ -18,13 +18,21 @@
         #chart {
             width: 100%;
             height: 100vh;
-            max-height: 800px;
-            background: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .slice-label {
-            font-size: 10px;
+            font-size: 8px;
+            pointer-events: none;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 12px;
             pointer-events: none;
         }
     </style>
@@ -79,9 +87,9 @@
             ]
         };
 
-        const width = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+        const width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
         const height = width;
-        const radius = width / 2;
+        const radius = width / 8;
 
         const richerColors = [
             "#FF9AA2", "#A8D8B9", "#8AC6D1", "#FFDAC1", "#E2F0CB",
@@ -161,7 +169,7 @@
                 words.forEach(word => {
                     line.push(word);
                     tspan.text(line.join(' '));
-                    if (tspan.node().getComputedTextLength() > 40) {
+                    if (tspan.node().getComputedTextLength() > 30) {
                         line.pop();
                         tspan.text(line.join(' '));
                         line = [word];
@@ -170,12 +178,36 @@
                 });
             });
 
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
         const parent = g.append('circle')
             .datum(root)
             .attr('r', radius)
             .attr('fill', 'none')
             .attr('pointer-events', 'all')
-            .on('click', clicked);
+            .on('click', clicked)
+            .on('mouseover', function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html("Click to zoom out")
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on('mouseout', function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        const centerLabel = g.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .attr('font-size', '12px')
+            .attr('pointer-events', 'none')
+            .text(data.name);
 
         function clicked(event, p) {
             parent.datum(p.parent || root);
@@ -206,6 +238,8 @@
             }).transition(t)
                 .attr('fill-opacity', d => +labelVisible(d.target))
                 .attrTween('transform', d => () => labelTransform(d.current));
+
+            centerLabel.text(p.depth ? p.data.name : data.name);
         }
 
         function arcVisible(d) {
