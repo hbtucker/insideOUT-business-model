@@ -201,7 +201,7 @@
             .data(root.descendants().slice(1))
             .join('text')
             .attr('class', 'slice-label')
-            .attr('dy', '0.35em')
+            .attr('dy', '0.30em')
             .attr('fill-opacity', d => +labelVisible(d.current))
             .attr('transform', d => labelTransform(d.current))
             .text(d => d.data.name)
