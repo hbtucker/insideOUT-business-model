@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Model Template</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,15 +16,15 @@
             background-color: #f0f0f0;
         }
         #chart {
-            max-width: 800px;
             width: 100%;
-            height: auto;
+            height: 100vh;
+            max-height: 800px;
             background: #fff;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
         .slice-label {
-            font-size: 12px;
+            font-size: 10px;
             pointer-events: none;
         }
     </style>
@@ -80,7 +79,7 @@
             ]
         };
 
-        const width = 928;
+        const width = Math.min(window.innerWidth, window.innerHeight) * 0.9;
         const height = width;
         const radius = width / 2;
 
@@ -108,15 +107,11 @@
         const svg = d3.select('#chart')
             .append('svg')
             .style('width', '100%')
-            .style('height', 'auto')
-            .style('font', '10px sans-serif')
-            .style('display', 'block')
-            .attr('viewBox', [0, 0, width, width])
-            .style('max-width', '100%')
-            .style('height', 'auto');
+            .style('height', '100%')
+            .attr('viewBox', [-width / 2, -height / 2, width, height])
+            .style('font', '10px sans-serif');
 
-        const g = svg.append('g')
-            .attr('transform', `translate(${width / 2},${width / 2})`);
+        const g = svg.append('g');
 
         const arc = d3.arc()
             .startAngle(d => d.x0)
@@ -166,7 +161,7 @@
                 words.forEach(word => {
                     line.push(word);
                     tspan.text(line.join(' '));
-                    if (tspan.node().getComputedTextLength() > 60) {
+                    if (tspan.node().getComputedTextLength() > 40) {
                         line.pop();
                         tspan.text(line.join(' '));
                         line = [word];
