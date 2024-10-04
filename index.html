@@ -118,7 +118,7 @@
 
 let width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
 let height = width;
-let radius = width / 14;
+let radius = width / 10;
 
         let richerColors = [
             "#c7522a", 
@@ -195,7 +195,7 @@ function calculateFontSize(d) {
     const angle = node.x1 - node.x0;
     const r = (node.y0 + node.y1) / 2 * radius;
     const circumference = angle * radius;
-    const maxFontSize = Math.min(14, circumference / 4);
+    const maxFontSize = Math.min(12, circumference / 4);
     const minFontSize = 7;
     return Math.max(minFontSize, maxFontSize);
 }
@@ -416,7 +416,7 @@ function calculateFontSize(d) {
 function resizeChart() {
     const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
     const newHeight = newWidth;
-    const newRadius = newWidth / 14;
+    const newRadius = newWidth / 10;
 
     svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
