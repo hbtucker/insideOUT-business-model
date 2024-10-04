@@ -253,7 +253,7 @@ let radius = width / 13;
             .attr('dy', '0.35em')
             .attr('fill-opacity', d => +labelVisible(d.current))
             .attr('transform', d => labelTransform(d.current))
-            .style('font-size', d => `${calculateFontSize(d)}px`)
+            .style("font-size", (d) => `${calculateFontSize(d)}px`)
             .each(function(d) {
                 const lines = insertLineBreaks(d.data.name);
                 d3.select(this).selectAll('tspan')
