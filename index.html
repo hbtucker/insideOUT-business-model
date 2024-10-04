@@ -414,10 +414,10 @@ let radius = width / 13;
             attributeFilter: ['class']
         });
 
-function resizeChart() {
-    const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
-    const newHeight = newWidth;
-    const newRadius = newWidth / 13;
+//function resizeChart() {
+//    const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+//    const newHeight = newWidth;
+//    const newRadius = newWidth / 13;
 
     svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
