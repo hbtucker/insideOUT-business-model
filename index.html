@@ -424,10 +424,15 @@
         });
 
         function updateColors() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? 'white' : 'black';
+            
             if (isDarkMode) {
                 color.range(darkerColors);
+                logo.src = 'dark-logo.png';
             } else {
                 color.range(richerColors);
+                logo.src = 'logo.png';
             }
 
             path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
