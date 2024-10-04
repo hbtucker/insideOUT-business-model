@@ -15,7 +15,6 @@
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
-            transition: background-color 0.3s ease;
         }
         #chart {
             width: 100%;
@@ -41,35 +40,19 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 70px;
+            width: 100px;
             height: auto;
             z-index: 1000;
-        }
-        #darkModeToggle {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            padding: 5px 10px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        body.dark-mode {
-            background-color: #202020;
         }
     </style>
 </head>
 <body>
     <div id="chart">
         <img id="logo" src="logo.png" alt="Logo">
-        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <script>
         const data = {
-            name: "Better Businesses for Humans",
+            name: "Build Better Businesses for Humans",
             children: [
                 {
                     name: "Value Proposition",
@@ -118,7 +101,7 @@
         const height = width;
         const radius = width / 8;
 
-        let richerColors = [
+        const richerColors = [
             "#c7522a", 
             "#e5c185",
             "#f1d5bf",
@@ -130,19 +113,7 @@
             "#d6eadf",
         ];
 
-        let darkerColors = [
-            "#8B3A1E",
-            "#A18860",
-            "#A99585",
-            "#517666",
-            "#005D5D",
-            "#5A6D90",
-            "#688092",
-            "#809D95",
-            "#96A39C",
-        ];
-
-        let color = d3.scaleOrdinal()
+        const color = d3.scaleOrdinal()
             .domain(data.children.map(d => d.name))
             .range(richerColors);
 
@@ -203,7 +174,7 @@
         path.filter(d => d.children)
             .style('cursor', 'pointer')
             .on('click', clicked);
-
+        
         path.filter(d => !d.children)
             .style('cursor', 'pointer')
             .on('click', (event, d) => {
@@ -305,7 +276,7 @@
                     .style("opacity", .9);
                 tooltip.html("Click to zoom out")
                     .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 1) + "px");
+                    .style("top", (event.pageY - 5) + "px");
             })
             .on('mouseout', function(d) {
                 tooltip.transition()
@@ -320,11 +291,14 @@
                 let word;
                 let line = [];
                 let lineNumber = 0;
-                const lineHeight = 1.2;
+                const lineHeight = 1.1; // Consistent line height
                 const y = text.attr("y");
+                const x = text.attr("x");
                 const dy = parseFloat(text.attr("dy"));
-                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                text.text(null);
 
+                let tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+                
                 while (word = words.pop()) {
                     line.push(word);
                     tspan.text(line.join(" "));
@@ -332,9 +306,20 @@
                         line.pop();
                         tspan.text(line.join(" "));
                         line = [word];
-                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                        tspan = text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
                     }
                 }
+
+                // Center the text vertically
+                const height = (lineNumber + 1) * lineHeight;
+                const offset = -height / 2 + dy;
+                text.selectAll("tspan")
+                    .attr("y", y)
+                    .attr("dy", (d, i) => `${offset + i * lineHeight + dy}em`);
             });
         }
 
@@ -372,15 +357,15 @@
                 .selectAll('path')
                 .data(root.descendants().slice(1))
                 .join('path')
-                .attr('fill', d => { while (d.depth > 1)
-                    d = d.parent; return color(d.data.name); })
+                .attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
                 .attr('fill-opacity', d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
                 .attr('pointer-events', d => arcVisible(d.target) ? 'auto' : 'none')
                 .attr('d', d => arc(d.target));
 
             path.filter(d => d.children)
                 .style('cursor', 'pointer')
-                .on('click', clicked);
+                .on('click',
+                clicked);
 
             path.filter(d => !d.children)
                 .style('cursor', 'pointer')
@@ -418,48 +403,8 @@
                 .call(wrapCenterText, radius * 1.5);
 
             updateCenterLabelSize();
-
-            // Apply correct text color after updating
-            updateColors();
         }
 
-        // Dark mode toggle functionality
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const logo = document.getElementById('logo');
-
-        function updateToggleText() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-        }
-
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            updateColors();
-            updateToggleText();
-        });
-
-        function updateColors() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const textColor = isDarkMode ? 'white' : 'black';
-            
-            if (isDarkMode) {
-                color.range(darkerColors);
-                logo.src = 'dark-logo.png';
-            } else {
-                color.range(richerColors);
-                logo.src = 'logo.png';
-            }
-
-            path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
-            d3.selectAll('.slice-label').attr('fill', textColor);
-            centerLabel.attr('fill', textColor);
-        }
-
-        // Initial color and text update
-        updateColors();
-        updateToggleText();
-
-        // Resize handler
         function handleResize() {
             const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
             const newHeight = newWidth;
