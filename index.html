@@ -118,7 +118,7 @@
 
   const width = 928;
   const height = width;
-  const radius = width / 9;
+  const radius = width / 12;
 
         let richerColors = [
             "#c7522a", 
@@ -416,7 +416,7 @@ function calculateFontSize(d) {
 function resizeChart() {
     const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
     const newHeight = newWidth;
-    const newRadius = newWidth / 9;
+    const newRadius = newWidth / 12;
 
     svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
