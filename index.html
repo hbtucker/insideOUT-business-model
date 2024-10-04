@@ -194,8 +194,8 @@ function calculateFontSize(d) {
     const node = d.current;
     const angle = node.x1 - node.x0;
     const r = (node.y0 + node.y1) / 2 * radius;
-    const perimeter = r * angle;
-    const maxFontSize = Math.min(10, perimeter / 4);
+    const circumference = angle * radius;
+    const maxFontSize = Math.min(12, circumference / 5);
     const minFontSize = 3;
     return Math.max(minFontSize, maxFontSize);
 }
