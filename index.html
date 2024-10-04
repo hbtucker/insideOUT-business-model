@@ -24,7 +24,7 @@
             align-items: center;
         }
         .slice-label {
-            font-size: 8px;
+            font-size: 9px;
             pointer-events: none;
         }
         .tooltip {
@@ -93,7 +93,7 @@
         const radius = width / 8;
 
         const richerColors = [
-            "#FF9AA2", "#A8D8B9", "#8AC6D1", "#FFDAC1", "#E2F0CB",
+            "#FF9AA2", "#A8D8B9", "#8AC6D1", "#FFDAC1", "#c1df90",
             "#B5EAD7", "#C7CEEA", "#F6D5E5", "#FFE5B4", "#D4A5A5"
         ];
 
@@ -118,7 +118,7 @@
             .style('width', '100%')
             .style('height', '100%')
             .attr('viewBox', [-width / 2, -height / 2, width, height])
-            .style('font', '10px sans-serif');
+            .style("font-family", "'Poppins', sans-serif")
 
         const g = svg.append('g');
 
@@ -167,7 +167,7 @@
                     .attr('transform', function(d) {
                         const [x, y] = arc.centroid(d.current);
                         const scale = d.current.y0 === 0 ? 1 : 1.1;
-                        return `scale(${scale}) translate(${x * 0.05},${y * 0.05})`;
+                        return `scale(${scale}) translate(${x * 0.03},${y * 0.03})`;
                     })
                     .attr('fill-opacity', 1);
             })
