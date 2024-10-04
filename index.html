@@ -189,11 +189,6 @@
             return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
         }
 
-        function getTextSize(d) {
-            const baseSize = 10;
-            return baseSize / (d.depth + 1);
-        }
-
         let path = g.append('g')
             .selectAll('path')
             .data(root.descendants().slice(1))
@@ -220,12 +215,18 @@
                 d3.select(this)
                     .transition()
                     .duration(200)
+                    .attr('transform', function(d) {
+                        const [x, y] = arc.centroid(d.current);
+                        const scale = d.current.y0 === 0 ? 1 : 1.03;
+                        return `scale(${scale}) translate(${x * 0.01},${y * 0.01})`;
+                    })
                     .attr('fill-opacity', 1);
             })
             .on('mouseout', function() {
                 d3.select(this)
                     .transition()
                     .duration(200)
+                    .attr('transform', 'scale(1) translate(0,0)')
                     .attr('fill-opacity', d => d.children ? 0.6 : 0.4);
             });
         }
@@ -247,8 +248,11 @@
                     x = text.attr("x"),
                     y = text.attr("y"),
                     dy = 0,
-                    tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-
+                    tspan = text.text(null)
+                                .append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", dy + "em");
                 while (word = words.pop()) {
                     line.push(word);
                     tspan.text(line.join(" "));
@@ -256,7 +260,11 @@
                         line.pop();
                         tspan.text(line.join(" "));
                         line = [word];
-                        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                        tspan = text.append("tspan")
+                                    .attr("x", x)
+                                    .attr("y", y)
+                                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                    .text(word);
                     }
                 }
             });
@@ -273,7 +281,6 @@
             .attr('dy', '0.35em')
             .attr('fill-opacity', d => +labelVisible(d.current))
             .attr('transform', d => labelTransform(d.current))
-            .style('font-size', d => `${getTextSize(d)}px`)
             .text(d => d.data.name)
             .call(wrap, 30);
 
@@ -286,7 +293,20 @@
             .attr('r', radius)
             .attr('fill', 'none')
             .attr('pointer-events', 'all')
-            .on('click', clicked);
+            .on('click', clicked)
+            .on('mouseover', function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html("Click to zoom out")
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 1) + "px");
+            })
+            .on('mouseout', function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
 
         function wrapCenterText(text, width) {
             text.each(function() {
@@ -349,9 +369,7 @@
                 return +this.getAttribute('fill-opacity') || labelVisible(d.target);
             }).transition(t)
                 .attr('fill-opacity', d => +labelVisible(d.target))
-                .attrTween('transform', d => () => labelTransform(d.current))
-                .style('font-size', d => `${getTextSize(d)}px`)
-                .call(wrap, 30);
+                .attrTween('transform', d => () => labelTransform(d.current));
 
             centerLabel.text(p.depth ? p.data.name : data.name)
                 .call(wrapCenterText, radius * 1.5);
@@ -360,7 +378,7 @@
         }
 
         const darkModeToggle = document.getElementById('darkModeToggle');
-        let isDarkMode = false;
+        let isDarkMode =  false;
 
         darkModeToggle.addEventListener('click', () => {
             isDarkMode = !isDarkMode;
@@ -400,7 +418,7 @@
             attributeFilter: ['class']
         });
 
-        function handleResize() {
+        function resizeChart() {
             const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
             const newHeight = newWidth;
             const newRadius = newWidth / 8;
@@ -408,15 +426,19 @@
             svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
             arc.innerRadius(d => d.y0 * newRadius)
-                .outerRadius(d => Math.max(d.y0 * newRadius, d.y1 * newRadius - 1));
+               .outerRadius(d => Math.max(d.y0 * newRadius, d.y1 * newRadius - 1));
 
             path.attr('d', d => arc(d.current));
+
             label.attr('transform', d => labelTransform(d.current))
-                .call(wrap, 30);
+                 .call(wrap, 30);
+
             centerLabel.call(wrapCenterText, newRadius * 1.5);
+
+            parent.attr('r', newRadius);
         }
 
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', resizeChart);
     </script>
 </body>
 </html>
