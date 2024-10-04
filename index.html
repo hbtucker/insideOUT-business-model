@@ -116,30 +116,16 @@
 
         const width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
         const height = width;
-        const radius = width / 8;
+        const radius = width / 12;
 
         let richerColors = [
-            "#c7522a", 
-            "#e5c185",
-            "#f1d5bf",
-            "#74a892", 
-            "#008585", 
-            "#809bce", 
-            "#95b8d1", 
-            "#b8e0d4", 
-            "#d6eadf",
+            "#FF9AA2", "#A8D8B9", "#8AC6D1", "#FFDAC1", "#E2F0CB",
+            "#B5EAD7", "#C7CEEA", "#F6D5E5", "#FFE5B4", "#D4A5A5"
         ];
 
         let darkerColors = [
-            "#8B3A1E",
-            "#A18860",
-            "#A99585",
-            "#517666",
-            "#005D5D",
-            "#5A6D90",
-            "#688092",
-            "#809D95",
-            "#96A39C",
+            "#8B3A1E", "#A18860", "#A99585", "#517666", "#005D5D",
+            "#5A6D90", "#688092", "#809D95", "#96A39C"
         ];
 
         let color = d3.scaleOrdinal()
@@ -163,7 +149,7 @@
             .style('width', '100%')
             .style('height', '100%')
             .attr('viewBox', [-width / 2, -height / 2, width, height])
-            .style("font-family", "'Poppins', sans-serif")
+            .style("font-family", "'Poppins', sans-serif");
 
         const g = svg.append('g');
 
@@ -186,13 +172,34 @@
         function labelTransform(d) {
             const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
             const y = (d.y0 + d.y1) / 2 * radius;
-            return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+            return `rotate(${x - 90}) translate(${y},0) rotate(${-x + 90})`;
         }
 
         function calculateFontSize(d) {
-            const angle = d.x1 - d.x0;
-            const arcLength = angle * (d.y0 + d.y1) / 2 * radius;
-            return Math.max(8, Math.min(14, arcLength / 5));
+            const node = d.current;
+            const angle = node.x1 - node.x0;
+            const radius = (node.y0 + node.y1) / 2;
+            const circumference = angle * radius;
+            const maxFontSize = Math.min(14, circumference / 4);
+            const minFontSize = 8;
+            return Math.max(minFontSize, maxFontSize);
+        }
+
+        function insertLineBreaks(text) {
+            const words = text.split(/\s+/);
+            let lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if (currentLine.length + words[i].length + 1 <= 10) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
         }
 
         let path = g.append('g')
@@ -243,39 +250,6 @@
         path.append('title')
             .text(d => `${d.ancestors().map(d => d.data.name).reverse().join('/')}\n${format(d.value)}`);
 
-        function wrap(text, width) {
-            text.each(function() {
-                let text = d3.select(this),
-                    words = text.text().split(/\s+/).reverse(),
-                    word,
-                    line = [],
-                    lineNumber = 0,
-                    lineHeight = 1.1,
-                    x = text.attr("x"),
-                    y = text.attr("y"),
-                    dy = 0,
-                    tspan = text.text(null)
-                                .append("tspan")
-                                .attr("x", x)
-                                .attr("y", y)
-                                .attr("dy", dy + "em");
-                while (word = words.pop()) {
-                    line.push(word);
-                    tspan.text(line.join(" "));
-                    if (tspan.node().getComputedTextLength() > width) {
-                        line.pop();
-                        tspan.text(line.join(" "));
-                        line = [word];
-                        tspan = text.append("tspan")
-                                    .attr("x", x)
-                                    .attr("y", y)
-                                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                                    .text(word);
-                    }
-                }
-            });
-        }
-
         let label = g.append('g')
             .attr('pointer-events', 'none')
             .attr('text-anchor', 'middle')
@@ -287,66 +261,55 @@
             .attr('dy', '0.35em')
             .attr('fill-opacity', d => +labelVisible(d.current))
             .attr('transform', d => labelTransform(d.current))
-            .style('font-size', d => `${calculateFontSize(d.current)}px`)
-            .text(d => d.data.name)
-            .call(wrap, 30);
-
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+            .style('font-size', d => `${calculateFontSize(d)}px`)
+            .each(function(d) {
+                const lines = insertLineBreaks(d.data.name);
+                d3.select(this).selectAll('tspan')
+                    .data(lines)
+                    .join('tspan')
+                    .attr('x', 0)
+                    .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
+                    .text(d => d);
+            });
 
         const parent = g.append('circle')
             .datum(root)
             .attr('r', radius)
             .attr('fill', 'none')
             .attr('pointer-events', 'all')
-            .on('click', clicked)
-            .on('mouseover', function(event, d) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html("Click to zoom out")
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 1) + "px");
-            })
-            .on('mouseout', function(d) {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
+            .on('click', clicked);
 
-        function wrapCenterText(text, width) {
-            text.each(function() {
-                const text = d3.select(this);
-                const words = text.text().split(/\s+/).reverse();
-                let word;
-                let line = [];
-                let lineNumber = 0;
-                const lineHeight = 1.2;
-                const y = text.attr("y");
-                const dy = parseFloat(text.attr("dy"));
-                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        const tooltipG = g.append('g')
+            .attr('pointer-events', 'all')
+            .style('cursor', 'pointer')
+            .on('click', () => clicked(null, parent.datum()));
 
-                while (word = words.pop()) {
-                    line.push(word);
-                    tspan.text(line.join(" "));
-                    if (tspan.node().getComputedTextLength() > width || word.length > 12) {
-                        line.pop();
-                        tspan.text(line.join(" "));
-                        line = [word];
-                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                    }
-                }
-            });
-        }
+        const tooltipRect = tooltipG.append('rect')
+            .attr('x', -40)
+            .attr('y', -10)
+            .attr('width', 80)
+            .attr('height', 20)
+            .attr('fill', '#f6f6f6')
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .attr('fill-opacity', 0);
 
-        const centerLabel = g.append('text')
+        const tooltipText = tooltipG.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '0.35em')
-            .attr('font-size', '14px')
-            .attr('pointer-events', 'none')
-            .text(data.name)
-            .call(wrapCenterText, radius * 1.5);
+            .attr('font-size', '7px')
+            .attr('fill-opacity', 0)
+            .text('Go to previous layer');
+
+        parent
+            .on('mouseover', () => {
+                tooltipRect.attr('fill-opacity', 0.5);
+                tooltipText.attr('fill-opacity', 0.5);
+            })
+            .on('mouseout', () => {
+                tooltipRect.attr('fill-opacity', 0);
+                tooltipText.attr('fill-opacity', 0);
+            });
 
         function clicked(event, p) {
             parent.datum(p.parent || root);
@@ -374,23 +337,28 @@
 
             label.filter(function(d) {
                 return +this.getAttribute('fill-opacity') || labelVisible(d.target);
-            }).transition(t)
-                .attr('fill-opacity', d => +labelVisible(d.target))
-                .attrTween('transform', d => () => labelTransform(d.current))
-                .tween('text', function(d) {
-                    const i = d3.interpolate(d.current, d.target);
-                    return function(t) {
-                        d.current = i(t);
-                        d3.select(this)
-                            .style('font-size', `${calculateFontSize(d.current)}px`)
-                            .attr('transform', labelTransform(d.current))
-                            .text(d.data.name)
-                            .call(wrap, 30);
-                    };
-                });
-
-            centerLabel.text(p.depth ? p.data.name : data.name)
-                .call(wrapCenterText, radius * 1.5);
+            })
+            .transition(t)
+            .attr('fill-opacity', d => +labelVisible(d.target))
+            .attrTween('transform', d => () => labelTransform(d.current))
+            .tween('text', function(d) {
+                const i = d3.interpolate(d.current, d.target);
+                return function(t) {
+                    d.current = i(t);
+                    const fontSize = calculateFontSize(d);
+                    d3.select(this)
+                        .style('font-size', `${fontSize}px`)
+                        .attr('transform', labelTransform(d.current));
+                    
+                    const lines = insertLineBreaks(d.data.name);
+                    d3.select(this).selectAll('tspan')
+                        .data(lines)
+                        .join('tspan')
+                        .attr('x', 0)
+                        .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
+                        .text(d => d);
+                };
+            });
 
             updateTextColor();
         }
@@ -399,7 +367,7 @@
         let isDarkMode = false;
 
         function updateDarkModeToggle() {
-            darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+            darkModeToggle.textContent =  isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
         }
 
         darkModeToggle.addEventListener('click', () => {
@@ -410,20 +378,32 @@
         });
 
         function updateColors() {
-            if (isDarkMode) {
-                color.range(darkerColors);
-            } else {
-                color.range(richerColors);
-            }
+            const textColor = isDarkMode ? 'white' : 'black';
+            const backgroundColor = isDarkMode ? '#202020' : '#fff';
+            
+            color.range(isDarkMode ? darkerColors : richerColors);
 
-            path.attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); });
-            updateTextColor();
+            svg.style('background', backgroundColor);
+
+            path.attr('fill', d => {
+                while (d.depth > 1) d = d.parent;
+                return color(d.data.name);
+            });
+
+            label.attr('fill', textColor);
+            tooltipText.attr('fill', textColor);
+            tooltipRect.attr('fill', isDarkMode ? '#333' : '#f6f6f6');
+
+            const logo = document.getElementById('logo');
+            if (logo) {
+                logo.src = isDarkMode ? 'dark-logo.png' : 'logo.png';
+            }
         }
 
         function updateTextColor() {
             const textColor = isDarkMode ? 'white' : 'black';
-            d3.selectAll('.slice-label').attr('fill', textColor);
-            centerLabel.attr('fill', textColor);
+            label.attr('fill', textColor);
+            tooltipText.attr('fill', textColor);
         }
 
         updateTextColor();
@@ -445,7 +425,7 @@
         function resizeChart() {
             const newWidth = Math.min(window.innerWidth, window.innerHeight) * 0.8;
             const newHeight = newWidth;
-            const newRadius = newWidth / 8;
+            const newRadius = newWidth / 12;
 
             svg.attr('viewBox', [-newWidth / 2, -newHeight / 2, newWidth, newHeight]);
 
@@ -455,10 +435,16 @@
             path.attr('d', d => arc(d.current));
 
             label.attr('transform', d => labelTransform(d.current))
-                 .style('font-size', d => `${calculateFontSize(d.current)}px`)
-                 .call(wrap, 30);
-
-            centerLabel.call(wrapCenterText, newRadius * 1.5);
+                 .style('font-size', d => `${calculateFontSize(d)}px`)
+                 .each(function(d) {
+                     const lines = insertLineBreaks(d.data.name);
+                     d3.select(this).selectAll('tspan')
+                         .data(lines)
+                         .join('tspan')
+                         .attr('x', 0)
+                         .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
+                         .text(d => d);
+                 });
 
             parent.attr('r', newRadius);
         }
