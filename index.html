@@ -166,8 +166,8 @@
                     .duration(200)
                     .attr('transform', function(d) {
                         const [x, y] = arc.centroid(d.current);
-                        const scale = d.current.y0 === 0 ? 1 : 1.1;
-                        return `scale(${scale}) translate(${x * 0.03},${y * 0.03})`;
+                        const scale = d.current.y0 === 0 ? 1 : 1.05;
+                        return `scale(${scale}) translate(${x * 0.02},${y * 0.02})`;
                     })
                     .attr('fill-opacity', 1);
             })
