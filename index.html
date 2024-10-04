@@ -53,7 +53,7 @@
     </div>
     <script>
         const data = {
-            name: "Building Better Businesses for Humans",
+            name: "Build Better Businesses for Humans",
             children: [
                 {
                     name: "Value Proposition",
@@ -275,10 +275,13 @@
                 let word;
                 let line = [];
                 let lineNumber = 0;
-                const lineHeight = 1.0;
+                const lineHeight = 1.1; // Consistent line height
                 const y = text.attr("y");
+                const x = text.attr("x");
                 const dy = parseFloat(text.attr("dy"));
-                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                text.text(null);
+
+                let tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
                 
                 while (word = words.pop()) {
                     line.push(word);
@@ -287,9 +290,20 @@
                         line.pop();
                         tspan.text(line.join(" "));
                         line = [word];
-                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                        tspan = text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
                     }
                 }
+
+                // Center the text vertically
+                const height = (lineNumber + 1) * lineHeight;
+                const offset = -height / 2 + dy;
+                text.selectAll("tspan")
+                    .attr("y", y)
+                    .attr("dy", (d, i) => `${offset + i * lineHeight + dy}em`);
             });
         }
 
