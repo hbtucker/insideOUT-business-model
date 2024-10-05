@@ -36,6 +36,13 @@
             padding: 5px;
             font-size: 9px;
             pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+        .tooltip img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
         }
         #logo {
             position: absolute;
@@ -69,304 +76,202 @@
         <img id="logo" src="logo.png" alt="Logo">
         <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
-<script>
-    const data = {
-        name: "Better Businesses for Humans",
-        children: [
-            {
-                name: "Value Proposition",
-                children: [
-                    { name: "Product/Service Offering", value: 1, url: "https://culture-coach.org", 
-                    linkFormat: ""},
-                    { name: "Customer Benefits", value: 1 },
-                    { name: "Unique Selling Point", value: 1 , url: "https://example.com/market-size",
-                    linkFormat: "underline"}
-                ]
-            },
-            {
-                name: "Customer Segments",
-                children: [
-                    { name: "Target Market", value: 1, url: "https://culture-coach.org"},
-                    { name: "Customer Personas", value: 1 },
-                    { name: "Market Size", value: 1 }
-                ]
-            },
-            {
-                name: "Revenue Streams",
-                children: [
-                    { name: "Pricing Model", value: 1 },
-                    { name: "Sales Channels", value: 1 },
-                    { name: "Revenue Sources", value: 1 }
-                ]
-            },
-            {
-                name: "Key Assets",
-                children: [
-                    { name: "Physical Assets", value: 1 },
-                    { name: "Intellectual Property", value: 1 },
-                    { name: "People", value: 1 }
-                ]
-            },
-            {
-                name: "Key Activities",
-                children: [
-                    { name: "Core Operations", value: 1 },
-                    { name: "Marketing & Sales", value: 1 },
-                    { name: "R&D", value: 1 }
-                ]
-            }
-        ]
-    };
+    <script>
+        const data = {
+            name: "Better Businesses for Humans",
+            children: [
+                {
+                    name: "Value Proposition",
+                    children: [
+                        { name: "Product/Service Offering", value: 1, url: "https://culture-coach.org", 
+                        linkFormat: "", tooltipImage: "https://example.com/product-icon.png"},
+                        { name: "Customer Benefits", value: 1, tooltipImage: "https://example.com/benefits-icon.png" },
+                        { name: "Unique Selling Point", value: 1 , url: "https://example.com/market-size",
+                        linkFormat: "underline", tooltipImage: "https://example.com/usp-icon.png"}
+                    ]
+                },
+                {
+                    name: "Customer Segments",
+                    children: [
+                        { name: "Target Market", value: 1, url: "https://culture-coach.org", tooltipImage: "https://example.com/target-icon.png"},
+                        { name: "Customer Personas", value: 1, tooltipImage: "https://example.com/personas-icon.png" },
+                        { name: "Market Size", value: 1, tooltipImage: "https://example.com/market-size-icon.png" }
+                    ]
+                },
+                {
+                    name: "Revenue Streams",
+                    children: [
+                        { name: "Pricing Model", value: 1, tooltipImage: "https://example.com/pricing-icon.png" },
+                        { name: "Sales Channels", value: 1, tooltipImage: "https://example.com/sales-icon.png" },
+                        { name: "Revenue Sources", value: 1, tooltipImage: "https://example.com/revenue-icon.png" }
+                    ]
+                },
+                {
+                    name: "Key Assets",
+                    children: [
+                        { name: "Physical Assets", value: 1, tooltipImage: "https://example.com/physical-assets-icon.png" },
+                        { name: "Intellectual Property", value: 1, tooltipImage: "https://example.com/ip-icon.png" },
+                        { name: "People", value: 1, tooltipImage: "https://example.com/people-icon.png" }
+                    ]
+                },
+                {
+                    name: "Key Activities",
+                    children: [
+                        { name: "Core Operations", value: 1, tooltipImage: "https://example.com/operations-icon.png" },
+                        { name: "Marketing & Sales", value: 1, tooltipImage: "https://example.com/marketing-icon.png" },
+                        { name: "R&D", value: 1, tooltipImage: "https://example.com/rd-icon.png" }
+                    ]
+                }
+            ]
+        };
 
-    let width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
-    let height = width;
-    let radius = width / 13;
+        let width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+        let height = width;
+        let radius = width / 13;
 
-    let richerColors = [
-        "#c7522a", 
-        "#e5c185",
-        "#f1d5bf",
-        "#74a892", 
-        "#008585", 
-        "#809bce", 
-        "#95b8d1", 
-        "#b8e0d4", 
-        "#d6eadf",
-    ];
+        let richerColors = [
+            "#c7522a", 
+            "#e5c185",
+            "#f1d5bf",
+            "#74a892", 
+            "#008585", 
+            "#809bce", 
+            "#95b8d1", 
+            "#b8e0d4", 
+            "#d6eadf",
+        ];
 
-    let darkerColors = [
-        "#8B3A1E",
-        "#A18860",
-        "#A99585",
-        "#517666",
-        "#005D5D",
-        "#5A6D90",
-        "#688092",
-        "#809D95",
-        "#96A39C",
-    ];
+        let darkerColors = [
+            "#8B3A1E",
+            "#A18860",
+            "#A99585",
+            "#517666",
+            "#005D5D",
+            "#5A6D90",
+            "#688092",
+            "#809D95",
+            "#96A39C",
+        ];
 
-    let color = d3.scaleOrdinal()
-        .domain(data.children.map(d => d.name))
-        .range(richerColors);
+        let color = d3.scaleOrdinal()
+            .domain(data.children.map(d => d.name))
+            .range(richerColors);
 
-    const partition = data => {
-        const root = d3.hierarchy(data)
-            .sum(d => d.value)
-            .sort((a, b) => b.value - a.value);
-        return d3.partition()
-            .size([2 * Math.PI, root.height + 1])
-            (root);
-    };
+        const partition = data => {
+            const root = d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+            return d3.partition()
+                .size([2 * Math.PI, root.height + 1])
+                (root);
+        };
 
-    const root = partition(data);
-    root.each(d => d.current = d);
+        const root = partition(data);
+        root.each(d => d.current = d);
 
-    const svg = d3.select('#chart')
-        .append('svg')
-        .attr("viewBox", [-width / 2, -height / 2, width, height])
-        .style("font-family", "'Poppins', sans-serif")
-        .attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -8px; background: #fff; cursor: pointer; font-family: 'Poppins', sans-serif;`);
+        const svg = d3.select('#chart')
+            .append('svg')
+            .attr("viewBox", [-width / 2, -height / 2, width, height])
+            .style("font-family", "'Poppins', sans-serif")
+            .attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -8px; background: #fff; cursor: pointer; font-family: 'Poppins', sans-serif;`);
 
-    const g = svg.append('g');
+        const g = svg.append('g');
 
-    const arc = d3.arc()
-        .startAngle(d => d.x0)
-        .endAngle(d => d.x1)
-        .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
-        .padRadius(radius * 1.5)
-        .innerRadius(d => d.y0 * radius)
-        .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1));
+        const arc = d3.arc()
+            .startAngle(d => d.x0)
+            .endAngle(d => d.x1)
+            .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+            .padRadius(radius * 1.5)
+            .innerRadius(d => d.y0 * radius)
+            .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1));
 
-    function arcVisible(d) {
-        return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
-    }
-
-    function labelVisible(d) {
-        return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
-    }
-
-    function labelTransform(d) {
-        const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
-        const y = (d.y0 + d.y1) / 2 * radius;
-        return `rotate(${x - 90}) translate(${y},0) rotate(${-x + 90})`;
-    }
-
-    function calculateFontSize(d) {
-        const node = d.current;
-        const angle = node.x1 - node.x0;
-        const radius = (node.y0 + node.y1) / 2;
-        const circumference = angle * radius;
-        const maxFontSize = Math.min(9, circumference / 4);
-        const minFontSize = 4;
-        return Math.max(minFontSize, maxFontSize);
-    }
-
-    function insertLineBreaks(text) {
-        const words = text.split(/\s+/);
-        let lines = [];
-        let currentLine = words[0];
-
-        for (let i = 1; i < words.length; i++) {
-            if (currentLine.length + words[i].length + 1 <= 10) {
-                currentLine += " " + words[i];
-            } else {
-                lines.push(currentLine);
-                currentLine = words[i];
-            }
+        function arcVisible(d) {
+            return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
         }
-        lines.push(currentLine);
-        return lines;
-    }
 
-    let path = g.append('g')
-        .selectAll('path')
-        .data(root.descendants().slice(1))
-        .join('path')
-        .attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
-        .attr('fill-opacity', d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
-        .attr('pointer-events', d => arcVisible(d.current) ? 'auto' : 'none')
-        .attr('d', d => arc(d.current));
+        function labelVisible(d) {
+            return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+        }
 
-    path.filter(d => d.children)
-        .style('cursor', 'pointer')
-        .on('click', clicked);
+        function labelTransform(d) {
+            const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+            const y = (d.y0 + d.y1) / 2 * radius;
+            return `rotate(${x - 90}) translate(${y},0) rotate(${-x + 90})`;
+        }
 
-    path.filter(d => !d.children)
-        .style('cursor', 'pointer')
-        .on('click', (event, d) => {
-            if (d.data.url) {
-                window.open(d.data.url, '_blank');
-            }
-        });
+        function calculateFontSize(d) {
+            const node = d.current;
+            const angle = node.x1 - node.x0;
+            const radius = (node.y0 + node.y1) / 2;
+            const circumference = angle * radius;
+            const maxFontSize = Math.min(9, circumference / 4);
+            const minFontSize = 4;
+            return Math.max(minFontSize, maxFontSize);
+        }
 
-    const format = d3.format(',d');
-    path.append('title')
-        .text(d => `${d.ancestors().map(d => d.data.name).reverse().join('/')}\n${format(d.value)}`);
+        function insertLineBreaks(text) {
+            const words = text.split(/\s+/);
+            let lines = [];
+            let currentLine = words[0];
 
-    let label = g.append('g')
-        .attr('pointer-events', 'none')
-        .attr('text-anchor', 'middle')
-        .style('user-select', 'none')
-        .selectAll('text')
-        .data(root.descendants().slice(1))
-        .join('text')
-        .attr('dy', '0.35em')
-        .attr('fill-opacity', d => +labelVisible(d.current))
-        .attr('transform', d => labelTransform(d.current))
-        .style("font-size", (d) => `${calculateFontSize(d)}px`)
-        .each(function(d) {
-            const lines = insertLineBreaks(d.data.name);
-            d3.select(this).selectAll('tspan')
-                .data(lines)
-                .join('tspan')
-                .attr('x', 0)
-                .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
-                .text(d => d);
-            
-            // Apply link formatting
-            if (d.data.url) {
-                const textElement = d3.select(this);
-                switch (d.data.linkFormat) {
-                    case 'bold':
-                        textElement.style('font-weight', 'bold');
-                        break;
-                    case 'color':
-                        textElement.style('fill', '#005ab3'); // Change to your preferred color
-                        break;
-                    default:
-                        textElement.style('text-decoration', 'underline');
+            for (let i = 1; i < words.length; i++) {
+                if (currentLine.length + words[i].length + 1 <= 10) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
                 }
             }
-        });
+            lines.push(currentLine);
+            return lines;
+        }
 
-    const parent = g.append('circle')
-        .datum(root)
-        .attr('r', radius)
-        .attr('fill', 'none')
-        .attr('pointer-events', 'all')
-        .on('click', clicked);
+        let path = g.append('g')
+            .selectAll('path')
+            .data(root.descendants().slice(1))
+            .join('path')
+            .attr('fill', d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
+            .attr('fill-opacity', d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
+            .attr('pointer-events', d => arcVisible(d.current) ? 'auto' : 'none')
+            .attr('d', d => arc(d.current));
 
-    const tooltipG = g.append('g')
-        .attr('pointer-events', 'all')
-        .style('cursor', 'pointer')
-        .on('click', () => clicked(null, parent.datum()));
+        path.filter(d => d.children)
+            .style('cursor', 'pointer')
+            .on('click', clicked);
 
-    const tooltipRect = tooltipG.append('rect')
-        .attr('x', -25)
-        .attr('y', -10)
-        .attr('width', 50)
-        .attr('height', 20)
-        .attr('fill', '#f6f6f6')
-        .attr('rx', 5)
-        .attr('ry', 5)
-        .attr('fill-opacity', 0);
+        path.filter(d => !d.children)
+            .style('cursor', 'pointer')
+            .on('click', (event, d) => {
+                if (d.data.url) {
+                    window.open(d.data.url, '_blank');
+                }
+            });
 
-    const tooltipText = tooltipG.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dy', '0.35em')
-        .attr('font-size', '4px')
-        .attr('fill-opacity', 0)
-        .text('Go to previous layer');
+        const format = d3.format(',d');
+        path.append('title')
+            .text(d => `${d.ancestors().map(d => d.data.name).reverse().join('/')}\n${format(d.value)}`);
 
-    parent
-        .on('mouseover', () => {
-            tooltipRect.attr('fill-opacity', 0.5);
-            tooltipText.attr('fill-opacity', 0.5);
-        })
-        .on('mouseout', () => {
-            tooltipRect.attr('fill-opacity', 0);
-            tooltipText.attr('fill-opacity', 0);
-        });
-
-    function clicked(event, p) {
-        parent.datum(p.parent || root);
-
-        root.each(d => d.target = {
-            x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
-            x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
-            y0: Math.max(0, d.y0 - p.depth),
-            y1: Math.max(0, d.y1 - p.depth)
-        });
-
-        const t = svg.transition().duration(750);
-
-        path.transition(t)
-            .tween("data", d => {
-                const i = d3.interpolate(d.current, d.target);
-                return t => d.current = i(t);
-            })
-            .filter(function(d) {
-                return +this.getAttribute("fill-opacity") || arcVisible(d.target);
-            })
-            .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
-            .attr("pointer-events", d => arcVisible(d.target) ? "auto" : "none")
-            .attrTween("d", d => () => arc(d.current));
-
-        label.filter(function(d) {
-            return +this.getAttribute("fill-opacity") || labelVisible(d.target);
-        })
-        .transition(t)
-        .attr("fill-opacity", d => +labelVisible(d.target))
-        .attrTween("transform", d => () => labelTransform(d.current))
-        .tween("text", function(d) {
-            const i = d3.interpolate(d.current, d.target);
-            return function(t) {
-                d.current = i(t);
-                const fontSize = calculateFontSize(d);
-                d3.select(this)
-                    .style("font-size", `${fontSize}px`)
-                    .attr("transform", labelTransform(d.current));
-                
+        let label = g.append('g')
+            .attr('pointer-events', 'none')
+            .attr('text-anchor', 'middle')
+            .style('user-select', 'none')
+            .selectAll('text')
+            .data(root.descendants().slice(1))
+            .join('text')
+            .attr('dy', '0.35em')
+            .attr('fill-opacity', d => +labelVisible(d.current))
+            .attr('transform', d => labelTransform(d.current))
+            .style("font-size", (d) => `${calculateFontSize(d)}px`)
+            .each(function(d) {
                 const lines = insertLineBreaks(d.data.name);
-                d3.select(this).selectAll("tspan")
+                d3.select(this).selectAll('tspan')
                     .data(lines)
-                    .join("tspan")
-                    .attr("x", 0)
-                    .attr("dy", (_, i) => i === 0 ? "0em" : "1em")
+                    .join('tspan')
+                    .attr('x', 0)
+                    .attr('dy', (_, i) => i === 0 ? '0em' : '1em')
                     .text(d => d);
-
-                // Reapply link formatting after transition
+                
+                // Apply link formatting
                 if (d.data.url) {
                     const textElement = d3.select(this);
                     switch (d.data.linkFormat) {
@@ -380,80 +285,211 @@
                             textElement.style('text-decoration', 'underline');
                     }
                 }
-            };
+            });
+
+        const parent = g.append('circle')
+            .datum(root)
+            .attr('r', radius)
+            .attr('fill', 'none')
+            .attr('pointer-events', 'all')
+            .on('click', clicked);
+
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        path.on("mouseover", function(event, d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+            
+            let tooltipContent = `<div>${d.data.name}</div>`;
+            if (d.data.tooltipImage) {
+                tooltipContent = `<img src="${d.data.tooltipImage}" alt="${d.data.name} icon">` + tooltipContent;
+            }
+            
+            tooltip.html(tooltipContent)
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
         });
 
-        updateTextColor();
-    }
+        const tooltipG = g.append('g')
+            .attr('pointer-events', 'all')
+            .style('cursor', 'pointer')
+            .on('click', () => clicked(null, parent.datum()));
 
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    let isDarkMode = false;
+        const tooltipRect = tooltipG.append('rect')
+            .attr('x', -25)
+            .attr('y', -10)
+            .attr('width', 50)
+            .attr('height', 20)
+            .attr('fill', '#f6f6f6')
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .attr('fill-opacity', 0);
 
-    function updateDarkModeToggle() {
-        darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-    }
+        const tooltipText = tooltipG.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .attr('font-size', '4px')
+            .attr('fill-opacity', 0)
+            .text('Go to previous layer');
 
-    darkModeToggle.addEventListener('click', () => {
-        isDarkMode = !isDarkMode;
-        document.body.classList.toggle('dark-mode');
-        updateColors();
-        updateDarkModeToggle();
-    });
+        parent
+            .on('mouseover', () => {
+                tooltipRect.attr('fill-opacity', 0.5);
+                tooltipText.attr('fill-opacity', 0.5);
+            })
+            .on('mouseout', () => {
+                tooltipRect.attr('fill-opacity', 0);
+                tooltipText.attr('fill-opacity', 0);
+            });
 
-    function updateColors() {
-        const textColor = isDarkMode ? 'white' : 'black';
-        const backgroundColor = isDarkMode ? '#191919' : '#fff';
-        
-        color.range(isDarkMode ? darkerColors : richerColors);
+        function clicked(event, p) {
+            parent.datum(p.parent || root);
 
-        svg.attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -8px; background: ${backgroundColor}; cursor: pointer; font-family: 'Poppins', sans-serif;`);
+            root.each(d => d.target = {
+                x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                y0: Math.max(0, d.y0 - p.depth),
+                y1: Math.max(0, d.y1 - p.depth)
+            });
 
-        path.attr('fill', d => {
-            while (d.depth > 1) d = d.parent;
-            return color(d.data.name);
-        });
+            const t = svg.transition().duration(750);
 
-        label.attr('fill', textColor);
-        tooltipText.attr('fill', textColor);
-        tooltipRect.attr('fill', isDarkMode ? '#333' : '#f6f6f6');
+            path.transition(t)
+                .tween("data", d => {
+                    const i = d3.interpolate(d.current, d.target);
+                    return t => d.current = i(t);
+                })
+                .filter(function(d) {
+                    return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+                })
+                .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
+                .attr("pointer-events", d => arcVisible(d.target) ? "auto" : "none")
+                .attrTween("d", d => () => arc(d.current));
 
-        const logo = document.getElementById('logo');
-        if (logo) {
-            logo.src = isDarkMode ? 'dark-logo.png' : 'logo.png';
+            label.filter(function(d) {
+                return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+            })
+            .transition(t)
+            .attr("fill-opacity", d => +labelVisible(d.target))
+            .attrTween("transform", d => () => labelTransform(d.current))
+            .tween("text", function(d) {
+                const i = d3.interpolate(d.current, d.target);
+                return function(t) {
+                    d.current = i(t);
+                    const fontSize = calculateFontSize(d);
+                    d3.select(this)
+                        .style("font-size", `${fontSize}px`)
+                        .attr("transform", labelTransform(d.current));
+                    
+                    const lines = insertLineBreaks(d.data.name);
+                    d3.select(this).selectAll("tspan")
+                        .data(lines)
+                        .join("tspan")
+                        .attr("x", 0)
+                        .attr("dy", (_, i) => i === 0 ? "0em" : "1em")
+                        .text(d => d);
+
+                    // Reapply link formatting after transition
+                    if (d.data.url) {
+                        const textElement = d3.select(this);
+                        switch (d.data.linkFormat) {
+                            case 'bold':
+                                textElement.style('font-weight', 'bold');
+                                break;
+                            case 'color':
+                                textElement.style('fill', '#005ab3'); // Change to your preferred color
+                                break;
+                            default:
+                                textElement.style('text-decoration', 'underline');
+                        }
+                    }
+                };
+            });
+
+            updateTextColor();
         }
 
-        // Update link formatting colors in dark mode
-        label.each(function(d) {
-            if (d.data.url && d.data.linkFormat === 'color') {
-                d3.select(this).style('fill', isDarkMode ? '#005ab3' : '#005ab3'); // Adjust colors as needed
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        let isDarkMode = false;
+
+        function updateDarkModeToggle() {
+            darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            updateColors();
+            updateDarkModeToggle();
+        });
+
+        function updateColors() {
+            const textColor = isDarkMode ? 'white' : 'black';
+            const backgroundColor = isDarkMode ? '#191919' : '#fff';
+            
+            color.range(isDarkMode ? darkerColors : richerColors);
+
+            svg.attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -8px; background: ${backgroundColor}; cursor: pointer; font-family: 'Poppins', sans-serif;`);
+
+            path.attr('fill', d => {
+                while (d.depth > 1) d = d.parent;
+                return color(d.data.name);
+            });
+
+            label.attr('fill', textColor);
+            tooltipText.attr('fill', textColor);
+            tooltipRect.attr('fill', isDarkMode ? '#333' : '#f6f6f6');
+
+            const logo = document.getElementById('logo');
+            if (logo) {
+                logo.src = isDarkMode ? 'dark-logo.png' : 'logo.png';
             }
+
+            // Update link formatting colors in dark mode
+            label.each(function(d) {
+                if (d.data.url && d.data.linkFormat === 'color') {
+                    d3.select(this).style('fill', isDarkMode ? '#005ab3' : '#005ab3'); // Adjust colors as needed
+                }
+            });
+
+            // Update tooltip styles for dark mode
+            tooltip.style("background-color", isDarkMode ? "rgba(51, 51, 51, 0.9)" : "rgba(255, 255, 255, 0.9)")
+                   .style("color", isDarkMode ? "#fff" : "#000")
+                   .style("border-color", isDarkMode ? "#555" : "#ddd");
+        }
+
+        function updateTextColor() {
+            const textColor = isDarkMode ? 'white' : 'black';
+            label.attr('fill', text => {
+                // Preserve custom colors for links
+                return text.data.url && text.data.linkFormat === 'color' ? d3.select(text).style('fill') : textColor;
+            });
+            tooltipText.attr('fill', textColor);
+        }
+
+        updateTextColor();
+        updateDarkModeToggle();
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateTextColor();
+                }
+            });
         });
-    }
 
-    function updateTextColor() {
-        const textColor = isDarkMode ? 'white' : 'black';
-        label.attr('fill', text => {
-            // Preserve custom colors for links
-            return text.data.url && text.data.linkFormat === 'color' ? d3.select(text).style('fill') : textColor;
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
         });
-        tooltipText.attr('fill', textColor);
-    }
-
-    updateTextColor();
-    updateDarkModeToggle();
-
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                updateTextColor();
-            }
-        });
-    });
-
-    observer.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
-</script>
+    </script>
 </body>
 </html>
