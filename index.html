@@ -80,7 +80,7 @@
                     linkFormat: "color"},
                     { name: "Customer Benefits", value: 1 },
                     { name: "Unique Selling Point", value: 1 , url: "https://example.com/market-size",
-                    linkFormat: "bold"}
+                    linkFormat: "underline"}
                 ]
             },
             {
@@ -272,7 +272,7 @@
                         textElement.style('font-weight', 'bold');
                         break;
                     case 'color':
-                        textElement.style('fill', '#00ff00'); // Change to your preferred color
+                        textElement.style('fill', '#005ab3'); // Change to your preferred color
                         break;
                     default:
                         textElement.style('text-decoration', 'underline');
@@ -374,7 +374,7 @@
                             textElement.style('font-weight', 'bold');
                             break;
                         case 'color':
-                            textElement.style('fill', '#00ff00'); // Change to your preferred color
+                            textElement.style('fill', '#005ab3'); // Change to your preferred color
                             break;
                         default:
                             textElement.style('text-decoration', 'underline');
@@ -425,7 +425,7 @@
         // Update link formatting colors in dark mode
         label.each(function(d) {
             if (d.data.url && d.data.linkFormat === 'color') {
-                d3.select(this).style('fill', isDarkMode ? '#00ff00' : '#0000ff'); // Adjust colors as needed
+                d3.select(this).style('fill', isDarkMode ? '#f6f6f6' : '#005ab3'); // Adjust colors as needed
             }
         });
     }
