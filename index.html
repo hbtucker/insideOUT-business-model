@@ -298,7 +298,7 @@
             .attr("class", "tooltip")
             .style("opacity", 0);
 
-        path.on("mouseover", function(event, d) {
+        path.on("click", function(event, d) {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
@@ -312,7 +312,7 @@
                 .style("left", (event.pageX) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })
-        .on("mouseout", function(d) {
+        .on("clicked", function(d) {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
