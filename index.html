@@ -319,7 +319,29 @@
             .style("opacity", 0);
     });
 
-    // Removed the tooltipG, tooltipRect, and tooltipText elements
+        const tooltipG = g.append('g')
+            .attr('pointer-events', 'all')
+            .style('cursor', 'pointer')
+            .on('click', () => clicked(null, parent.datum()));
+
+        const tooltipRect = tooltipG.append('rect')
+            .attr('x', -25)
+            .attr('y', -10)
+            .attr('width', 50)
+            .attr('height', 20)
+            .attr('fill', '#f6f6f6')
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .attr('fill-opacity', 0);    
+        
+        const tooltipText = tooltipG.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .attr('font-size', '4px')
+            .attr('fill-opacity', 0)
+            .text('Go to previous layer');
+
+    // Removed the tooltipText elements
         
    function clicked(event, p) {
             parent.datum(p.parent || root);
