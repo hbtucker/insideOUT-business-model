@@ -40,8 +40,8 @@
             align-items: center;
         }
         .tooltip img {
-            width: 96px;
-            height: 96px;
+            width: 192px;
+            height: 192px;
             margin-right: 10px;
         }
         #logo {
@@ -87,7 +87,7 @@
                         linkFormat: "", tooltipImage: "https://example.com/product-icon.png"},
                         { name: "Customer Benefits", value: 1, tooltipImage: "https://example.com/benefits-icon.png" },
                         { name: "Unique Selling Point", value: 1 , url: "https://example.com/market-size",
-                        linkFormat: "underline", tooltipImage: "https://static.wixstatic.com/media/f29f2f_e8e95ce26f654d4c836737da44b76635~mv2.jpg/v1/fill/w_840,h_803,al_c,q_85,enc_auto/f29f2f_e8e95ce26f654d4c836737da44b76635~mv2.jpg"}
+                        linkFormat: "underline", tooltipImage: "https://example.com/usp-icon.png"}
                     ]
                 },
                 {
@@ -196,7 +196,7 @@
         function labelTransform(d) {
             const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
             const y = (d.y0 + d.y1) / 2 * radius;
-            return `rotate(${x - 90}) translate(${y},0) rotate(${-x + 90})`;
+            return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
         }
 
         function calculateFontSize(d) {
@@ -350,6 +350,39 @@
                 tooltipText.attr('fill-opacity', 0);
             });
 
+        function wrapCenterText(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.2;
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy"));
+                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width || word.length > 12) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+
+        const centerLabel = g.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.20em')
+            .attr('font-size', '14px')
+            .attr('pointer-events', 'none')
+            .text(data.name)
+            .call(wrapCenterText, radius * 1.5);
+
         function clicked(event, p) {
             parent.datum(p.parent || root);
 
@@ -414,6 +447,9 @@
                 };
             });
 
+            centerLabel.text(p.depth ? p.data.name : data.name)
+                .call(wrapCenterText, radius * 1.5);
+
             updateTextColor();
         }
 
@@ -447,6 +483,7 @@
             label.attr('fill', textColor);
             tooltipText.attr('fill', textColor);
             tooltipRect.attr('fill', isDarkMode ? '#333' : '#f6f6f6');
+            centerLabel.attr('fill', textColor);
 
             const logo = document.getElementById('logo');
             if (logo) {
@@ -473,6 +510,7 @@
                 return text.data.url && text.data.linkFormat === 'color' ? d3.select(text).style('fill') : textColor;
             });
             tooltipText.attr('fill', textColor);
+            centerLabel.attr('fill', textColor);
         }
 
         updateTextColor();
