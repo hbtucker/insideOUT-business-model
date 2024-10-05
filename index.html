@@ -341,11 +341,11 @@
             .text('Go to previous layer');
 
         parent
-            .on('mouseover', () => {
+            .on('click', () => {
                 tooltipRect.attr('fill-opacity', 0.5);
                 tooltipText.attr('fill-opacity', 0.5);
             })
-            .on('mouseout', () => {
+            .on('clicked', () => {
                 tooltipRect.attr('fill-opacity', 0);
                 tooltipText.attr('fill-opacity', 0);
             });
