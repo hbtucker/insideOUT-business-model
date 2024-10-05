@@ -341,6 +341,16 @@
             .attr('fill-opacity', 0)
             .text('Go to previous layer');
 
+        parent
+            .on('mouseover', () => {
+                tooltipRect.attr('fill-opacity', 0.5);
+                tooltipText.attr('fill-opacity', 0.5);
+            })
+            .on('mouseout', () => {
+                tooltipRect.attr('fill-opacity', 0);
+                tooltipText.attr('fill-opacity', 0);
+            });
+
     // Removed the tooltipText elements
         
    function clicked(event, p) {
@@ -438,6 +448,8 @@
         });
 
         label.attr('fill', textColor);
+        tooltipText.attr('fill', textColor);
+        tooltipRect.attr('fill', isDarkMode ? '#333' : '#f6f6f6');
 
         const logo = document.getElementById('logo');
         if (logo) {
@@ -463,6 +475,7 @@
             // Preserve custom colors for links
             return text.data.url && text.data.linkFormat === 'color' ? d3.select(text).style('fill') : textColor;
         });
+        tooltipText.attr('fill', textColor);
     }
 
     updateTextColor();
