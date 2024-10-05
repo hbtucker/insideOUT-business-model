@@ -432,18 +432,8 @@
             updateTextColor();
         }
 
-    const darkModeToggle = document.getElementById('darkModeToggle');
+const darkModeToggle = document.getElementById('darkModeToggle');
     let isDarkMode = true;
-
-    function updateDarkModeToggle() {
-        darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-    }
-
-    darkModeToggle.addEventListener('click', () => {
-        isDarkMode = !isDarkMode;
-document.body.classList.add('dark-mode');
-    updateColors();
-    updateDarkModeToggle();
 
     function updateDarkModeToggle() {
         darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
@@ -454,6 +444,7 @@ document.body.classList.add('dark-mode');
         document.body.classList.toggle('dark-mode');
         updateColors();
         updateDarkModeToggle();
+    });
 
     function updateColors() {
         const textColor = isDarkMode ? 'white' : 'black';
@@ -500,6 +491,7 @@ document.body.classList.add('dark-mode');
     }
 
     // Call these functions immediately to set the initial dark mode state
+    document.body.classList.add('dark-mode');
     updateColors();
     updateTextColor();
     updateDarkModeToggle();
