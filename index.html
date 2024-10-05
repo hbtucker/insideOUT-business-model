@@ -425,7 +425,7 @@
         // Update link formatting colors in dark mode
         label.each(function(d) {
             if (d.data.url && d.data.linkFormat === 'color') {
-                d3.select(this).style('fill', isDarkMode ? '#f6f6f6' : '#005ab3'); // Adjust colors as needed
+                d3.select(this).style('fill', isDarkMode ? '#005ab3' : '#005ab3'); // Adjust colors as needed
             }
         });
     }
