@@ -433,7 +433,17 @@
         }
 
     const darkModeToggle = document.getElementById('darkModeToggle');
-    let isDarkMode = false;
+    let isDarkMode = true;
+
+    function updateDarkModeToggle() {
+        darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+    }
+
+    darkModeToggle.addEventListener('click', () => {
+        isDarkMode = !isDarkMode;
+document.body.classList.add('dark-mode');
+    updateColors();
+    updateDarkModeToggle();
 
     function updateDarkModeToggle() {
         darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
@@ -490,6 +500,8 @@
         tooltipText.attr('fill', textColor);
     }
 
+    // Call these functions immediately to set the initial dark mode state
+    updateColors();
     updateTextColor();
     updateDarkModeToggle();
 
